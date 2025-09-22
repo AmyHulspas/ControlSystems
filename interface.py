@@ -11,26 +11,23 @@ from PyQt5 import QtWidgets, QtCore
 
 class Interface:
     def __init__(self):
-        self.measurements = []
-        self.timeValues = []
-        self.currentTime = 0
         self.plotReading = None
         self.plotWindow = None
         self.pidInterfaceApp = None
         self.timer = None
 
-    def plotMeasurements(self, _value, _time):
+    def plotMeasurements(self, _controller):
 
-        self.measurements.append(_value)
-        self.timeValues.append(_time)
+        _controller.measurements.append(_controller.readMeasurement())
+        _controller.timeStamps.append(_controller.currentTime)
 
-        if len(self.measurements) > 100:
-            self.measurements.pop(0)
-            self.timeValues.pop(0)
+        if len(_controller.measurements) > 100:
+            _controller.measurements.pop(0)
+            _controller.timeStamps.pop(0)
 
         # Update the plot
         if self.plotReading is not None:
-            self.plotReading.setData(self.timeValues, self.measurements)
+            self.plotReading.setData(_controller.timeStamps, _controller.measurements)
 
     def runInterface(self, _function):
         #sys.arg is a required argument for QApplication,
@@ -62,5 +59,4 @@ class Interface:
         #First 'pidInterfaceApp.exec_()' runs the application and all it's logic
         #When the application window is closed, 
         #'sys.exit' makes sure the application exits cleanly.
-        print("this is called")
         sys.exit(self.pidInterfaceApp.exec_())
