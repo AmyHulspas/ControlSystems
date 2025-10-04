@@ -1,6 +1,7 @@
 import sys
 import pyqtgraph as pg
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt
 
 class Interface:
     def __init__(self):
@@ -38,8 +39,8 @@ class Interface:
         plot.setLabel("left", "Measurements")
         plot.setYRange(0, _distance)
 
-        self.__plotReading = plot.plot()
-        self.__plotSetpoint = plot.plot(pen=pg.mkPen(color=(255, 0, 0), style=QtCore.Qt.DotLine))
+        self.__plotReading = plot.plot(pen=pg.mkPen(color="blue"))
+        self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
 
         self.runUpdateFunction(_function)
 
