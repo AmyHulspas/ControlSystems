@@ -1,10 +1,12 @@
 import serial
+from collections import deque
 
 class Controller:
     def __init__(self):
-        self.measurements: list = []
-        self.timeStamps: list = []
-        self.setPoints: list = []
+        self.measurements: deque[float] = deque(maxlen=100)
+        self.setPoints: deque[float] = deque(maxlen=100)
+        self.timeStamps: deque[float] = deque(maxlen=100)
+        self.errors: deque[float] = deque(maxlen=100)
 
         self.__serial = serial.Serial(port="COM4", baudrate=115200, timeout=1)
         self.__currentDistance: float = 0
@@ -20,8 +22,6 @@ class Controller:
         self.__currentDistance = float(values[0])
         self.__currentSetpoint = int(values[1])
         self.__currentSetpoint = self.convertRawToSetpoint(self.__currentSetpoint)
-
-        print(f"Distance = {self.__currentDistance}, setpoint = {self.__currentSetpoint}")
 
     def getCurrentDistance(self) -> float:
         return self.__currentDistance
