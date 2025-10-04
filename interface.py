@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 
 class Interface:
     def __init__(self):
-        self.__plotReading = None
+        self.__plotDistance = None
         self.__plotSetpoint = None
         self.__plotWindow = None
         self.__pidInterfaceApp = None
@@ -22,8 +22,8 @@ class Interface:
             _controller.timeStamps.pop(0)
             _controller.setPoints.pop(0)
 
-        if self.__plotReading is not None:
-            self.__plotReading.setData(_controller.timeStamps, _controller.measurements)
+        if self.__plotDistance is not None:
+            self.__plotDistance.setData(_controller.timeStamps, _controller.measurements)
 
         if self.__plotSetpoint is not None:
             self.__plotSetpoint.setData(_controller.timeStamps, _controller.setPoints)
@@ -32,6 +32,11 @@ class Interface:
         self.__pidInterfaceApp = QtWidgets.QApplication(sys.argv)
         self.__plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements")
 
+        self.showPlot(_distance)
+
+        self.runUpdateFunction(_function)
+
+    def showPlot(self, _distance: float):
         plot = self.__plotWindow.addPlot(title="Real time measurements")
         plot.setMouseEnabled(x=False, y=False)
         plot.showGrid(x=True, y=True)
@@ -39,11 +44,11 @@ class Interface:
         plot.setLabel("left", "Measurements")
         plot.setYRange(0, _distance)
 
-        self.__plotReading = plot.plot(pen=pg.mkPen(color="blue"))
+        self.__plotDistance = plot.plot(pen=pg.mkPen(color="blue"))
         self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
 
-        self.runUpdateFunction(_function)
-
+        self.__plotWindow.nextCol()
+    
     def runUpdateFunction(self, _function):
         if _function is None: 
             return
