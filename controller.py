@@ -12,6 +12,17 @@ class Controller:
         self.__currentTime: int = 0
         self.__maxBeamDistance: float = 50
 
+    def readSerial(self) -> None:
+        line = self.__serial.readline()
+        decodedLine = line.decode().strip()
+        values = decodedLine.split(",")
+
+        self.__currentDistance = float(values[0])
+        self.__currentSetpoint = int(values[1])
+        self.__currentSetpoint = self.convertRawToSetpoint(self.__currentSetpoint)
+
+        print(f"Distance = {self.__currentDistance}, setpoint = {self.__currentSetpoint}")
+
     def getCurrentDistance(self) -> float:
         return self.__currentDistance
     
@@ -29,14 +40,3 @@ class Controller:
 
     def convertRawToSetpoint(self, _value: int):
         return (_value/4095.0) * self.__maxBeamDistance
-
-    def readSerial(self) -> None:
-        line = self.__serial.readline()
-        decodedLine = line.decode().strip()
-        values = decodedLine.split(",")
-
-        self.__currentDistance = float(values[0])
-        self.__currentSetpoint = int(values[1])
-        self.__currentSetpoint = self.convertRawToSetpoint(self.__currentSetpoint)
-
-        print(f"Distance = {self.__currentDistance}, setpoint = {self.__currentSetpoint}")
