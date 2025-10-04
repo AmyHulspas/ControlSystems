@@ -11,10 +11,10 @@ from PyQt5 import QtWidgets, QtCore
 
 class Interface:
     def __init__(self):
-        self.plotReading = None
-        self.plotWindow = None
-        self.pidInterfaceApp = None
-        self.timer = None
+        self.__plotReading = None
+        self.__plotWindow = None
+        self.__pidInterfaceApp = None
+        self.__timer = None
 
     def plotMeasurements(self, _controller):
 
@@ -26,22 +26,22 @@ class Interface:
             _controller.timeStamps.pop(0)
 
         # Update the plot
-        if self.plotReading is not None:
-            self.plotReading.setData(_controller.timeStamps, _controller.measurements)
+        if self.__plotReading is not None:
+            self.__plotReading.setData(_controller.timeStamps, _controller.measurements)
 
     def runInterface(self, _function):
         #sys.arg is a required argument for QApplication,
         #it allows sys.argv to read arguments from the command line 
-        self.pidInterfaceApp = QtWidgets.QApplication(sys.argv) #Create the application
-        self.plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements") #Create the window
+        self.__pidInterfaceApp = QtWidgets.QApplication(sys.argv) #Create the application
+        self.__plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements") #Create the window
 
-        plot = self.plotWindow.addPlot(title="Real time measurements")
+        plot = self.__plotWindow.addPlot(title="Real time measurements")
         plot.setMouseEnabled(x=False, y=False)
         plot.showGrid(x=True, y=True)
         plot.setLabel("bottom", "Mesaurements")
         plot.setLabel("left", "Time")
 
-        self.plotReading = plot.plot()
+        self.__plotReading = plot.plot()
 
         self.runUpdateFunction(_function)
 
@@ -50,13 +50,13 @@ class Interface:
             return
         
         #Call the update function
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(_function)
-        self.timer.start(10)
+        self.__timer = QtCore.QTimer()
+        self.__timer.timeout.connect(_function)
+        self.__timer.start(10)
 
     def exitInterface(self):
         #This function essentially behaves like two seperate functions
         #First 'pidInterfaceApp.exec_()' runs the application and all it's logic
         #When the application window is closed, 
         #'sys.exit' makes sure the application exits cleanly.
-        sys.exit(self.pidInterfaceApp.exec_())
+        sys.exit(self.__pidInterfaceApp.exec_())
