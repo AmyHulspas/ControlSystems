@@ -11,7 +11,7 @@ class Interface:
         self.__pidInterfaceApp = None
         self.__timer = None
 
-    def plotMeasurements(self, _controller):
+    def plotMeasurements(self, _controller) -> None:
 
         _controller.measurements.append(_controller.getCurrentDistance())
         _controller.timeStamps.append(_controller.getCurrentTime())
@@ -28,7 +28,7 @@ class Interface:
         if self.__plotSetpoint is not None:
             self.__plotSetpoint.setData(_controller.timeStamps, _controller.setPoints)
 
-    def runInterface(self, _function, _distance:float):
+    def runInterface(self, _function, _distance:float) -> None:
         self.__pidInterfaceApp = QtWidgets.QApplication(sys.argv)
         self.__plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements")
 
@@ -36,7 +36,7 @@ class Interface:
 
         self.runUpdateFunction(_function)
 
-    def showPlot(self, _distance: float):
+    def showPlot(self, _distance: float) -> None:
         plot = self.__plotWindow.addPlot(title="Real time measurements")
         plot.setMouseEnabled(x=False, y=False)
         plot.showGrid(x=True, y=True)
@@ -49,7 +49,7 @@ class Interface:
 
         self.__plotWindow.nextCol()
     
-    def runUpdateFunction(self, _function):
+    def runUpdateFunction(self, _function) -> None:
         if _function is None: 
             return
         
@@ -57,5 +57,5 @@ class Interface:
         self.__timer.timeout.connect(_function)
         self.__timer.start(10)
 
-    def exitInterface(self):
+    def exitInterface(self) -> None:
         sys.exit(self.__pidInterfaceApp.exec_())
