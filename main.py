@@ -10,5 +10,5 @@ def update():
     controller.readSerial()
 
 if __name__ == "__main__":
-    myInterface.runInterface(update)
+    myInterface.runInterface(update, controller.getMaxDistance())
     myInterface.exitInterface()
