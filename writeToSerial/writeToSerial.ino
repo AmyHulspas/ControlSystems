@@ -1,6 +1,10 @@
 const int PIN_SETPOINT = 34;
 const int PIN_TRIGGER_DS = 32;
 const int PIN_ECHO_DS = 33;
+const int PIN_DAC = 25;
+
+const long minDistance = 2;
+const long maxDistance = 400;
 
 void setup() {
   Serial.begin(115200);
@@ -34,6 +38,18 @@ float readDistanceCentimeters() {
   return distanceCentimeters;
 }
 
+float convertDistanceToDac(long _distance) {
+  //Map the output from the distance sensor to a range between 0 and 255 (8-bit)
+  int dacValue = map(_distance, minDistance, maxDistance, 0, 255);
+
+  //Clamp the value to 0-255, as a fallback, as a fallback
+  dacValue = constrain(dacValue, 0, 255);
+
+  //Convert the 8-bit values to a voltage between 0-3.3V
+  //Note: A DAC pin must be used (GPIO 25 or GPIO 26)
+  dacWrite(PIN_DAC, dacValue);
+}
+
 void loop() {
   float distanceCentimeters = readDistanceCentimeters();
   int setpointRaw = analogRead(PIN_SETPOINT);
@@ -44,6 +60,8 @@ void loop() {
     Serial.print(",");
     Serial.println(setpointRaw); // send raw ADC reading
   }
+
+  convertDistanceToDac(float(distanceCentimeters)); //Convert the distance to a voltage output between 0-3.3V
 
   delay(50);
 }
