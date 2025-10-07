@@ -21,7 +21,7 @@ class Interface:
         _controller.timeStamps.append(currentTime)
         _controller.setPoints.append(setpoint)
 
-        error = abs(distance - setpoint) #Calculate the error
+        error =  (distance - setpoint) #Calculate the error
         _controller.errors.append(error)
 
         #Plot the distance measurement and setpoint in realtime
@@ -39,6 +39,7 @@ class Interface:
         self.__plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements")
 
         self.showMeasuredPlot(_distance)
+        self.__plotWindow.nextRow()
         self.showAnalysisPlot(_distance)
 
         self.runUpdateFunction(_function)
@@ -54,15 +55,13 @@ class Interface:
         self.__plotDistance = plot.plot(pen=pg.mkPen(color="blue"))
         self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
 
-        self.__plotWindow.nextRow()
-
     def showAnalysisPlot(self, _distance: float) -> None:
         plot = self.__plotWindow.addPlot(title="Analysis")
         plot.setMouseEnabled(x=False, y=False)
         plot.showGrid(x=True, y=True)
         plot.setLabel("bottom", "Time")
         plot.setLabel("left", "Error (cm)")
-        plot.setYRange(0, _distance)
+        plot.setYRange(-_distance, _distance)
 
         self.__plotError = plot.plot(pen=pg.mkPen(color="red"))
 
