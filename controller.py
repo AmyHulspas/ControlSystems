@@ -14,11 +14,13 @@ class Controller:
         self.__currentTime: int = 0
         self.__maxBeamDistance: float = 50
 
-        self.__tolerancePercentage: float = 0.05
+        self.__tolerancePercentage: float = 0.15
         self.__isSettled: bool = False
         self.__settlingTime: float = None
         self.__withinToleranceCounter: int = 0
         self.__requiredSettledSteps: int = 10
+        self.__unsettledStartTime: float = 0
+        self.__isUnsettledPeriodActive: bool = False
 
     def readSerial(self) -> None:
         line = self.__serial.readline()
@@ -48,9 +50,6 @@ class Controller:
         return (_value/4095.0) * self.__maxBeamDistance
 
     def updateSettlingTime(self) -> None:
-        if self.__isSettled:
-            return
-
         currentValue = self.__currentDistance
         setpoint = self.__currentSetpoint
         tolerance = abs(setpoint * self.__tolerancePercentage)
@@ -59,11 +58,17 @@ class Controller:
 
         if lowerBound <= currentValue <= upperBound:
             self.__withinToleranceCounter += 1
-            if self.__withinToleranceCounter >= self.__requiredSettledSteps:
+            if not self.__isSettled and self.__withinToleranceCounter >= self.__requiredSettledSteps:
                 self.__isSettled = True
-                self.__settlingTime = self.__currentTime - self.__requiredSettledSteps
+                self.__settlingTime = self.__currentTime - self.__unsettledStartTime - self.__requiredSettledSteps
+                self.__isUnsettledPeriodActive = False
         else:
             self.__withinToleranceCounter = 0
+            if not self.__isUnsettledPeriodActive:
+                self.__unsettledStartTime = self.__currentTime
+                self.__isUnsettledPeriodActive = True
+            self.__isSettled = False
+            self.__settlingTime = None
 
     def getSettlingTime(self) -> float:
         return self.__settlingTime
