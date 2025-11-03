@@ -11,6 +11,9 @@ class Interface:
         self.__plotWindow = None
         self.__pidInterfaceApp = None
         self.__timer = None
+        self.__toleranceLineLower = None
+        self.__toleranceLineUpper = None
+        self.__settlingLabel = None
 
     def plotMeasurements(self, _controller) -> None:
         distance = _controller.getCurrentDistance()
@@ -21,18 +24,21 @@ class Interface:
         _controller.timeStamps.append(currentTime)
         _controller.setPoints.append(setpoint)
 
-        error =  (distance - setpoint) #Calculate the error
+        error = (distance - setpoint)
         _controller.errors.append(error)
 
-        #Plot the distance measurement and setpoint in realtime
         if self.__plotDistance is not None:
             self.__plotDistance.setData(_controller.timeStamps, _controller.measurements)
         if self.__plotSetpoint is not None:
             self.__plotSetpoint.setData(_controller.timeStamps, _controller.setPoints)
 
-        #Plot the overshoot in realtime
         if self.__plotError is not None:
             self.__plotError.setData(_controller.timeStamps, _controller.errors)
+
+        if self.__toleranceLineLower is not None and self.__toleranceLineUpper is not None:
+            lower, upper = _controller.getToleranceBounds()
+            self.__toleranceLineLower.setValue(lower)
+            self.__toleranceLineUpper.setValue(upper)
 
     def runInterface(self, _function, _distance: float) -> None:
         self.__pidInterfaceApp = QtWidgets.QApplication(sys.argv)
@@ -41,6 +47,8 @@ class Interface:
         self.showMeasuredPlot(_distance)
         self.__plotWindow.nextRow()
         self.showAnalysisPlot(_distance)
+
+        self.createSettlingLabel()
 
         self.runUpdateFunction(_function)
 
@@ -55,6 +63,11 @@ class Interface:
         self.__plotDistance = plot.plot(pen=pg.mkPen(color="blue"))
         self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
 
+        self.__toleranceLineLower = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="red", style=Qt.DashLine))
+        self.__toleranceLineUpper = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="red", style=Qt.DashLine))
+        plot.addItem(self.__toleranceLineLower)
+        plot.addItem(self.__toleranceLineUpper)
+
     def showAnalysisPlot(self, _distance: float) -> None:
         plot = self.__plotWindow.addPlot(title="Analysis")
         plot.setMouseEnabled(x=False, y=False)
@@ -64,6 +77,19 @@ class Interface:
         plot.setYRange(-_distance, _distance)
 
         self.__plotError = plot.plot(pen=pg.mkPen(color="red"))
+
+    def createSettlingLabel(self) -> None:
+        labelProxy = QtWidgets.QGraphicsProxyWidget()
+        self.__settlingLabel = QtWidgets.QLabel("Settling time: calculating...")
+        labelProxy.setWidget(self.__settlingLabel)
+        self.__plotWindow.addItem(labelProxy)
+
+    def updateSettlingDisplay(self, _controller) -> None:
+        settlingTime = _controller.getSettlingTime()
+        if settlingTime is None:
+            self.__settlingLabel.setText("Settling time: calculating...")
+        else:
+            self.__settlingLabel.setText("Settling time: " + str(settlingTime))
 
     def runUpdateFunction(self, _function) -> None:
         if _function is None: 

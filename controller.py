@@ -14,6 +14,12 @@ class Controller:
         self.__currentTime: int = 0
         self.__maxBeamDistance: float = 50
 
+        self.__tolerancePercentage: float = 0.05
+        self.__isSettled: bool = False
+        self.__settlingTime: float = None
+        self.__withinToleranceCounter: int = 0
+        self.__requiredSettledSteps: int = 10
+
     def readSerial(self) -> None:
         line = self.__serial.readline()
         decodedLine = line.decode().strip()
@@ -40,3 +46,29 @@ class Controller:
 
     def convertRawToSetpoint(self, _value: int):
         return (_value/4095.0) * self.__maxBeamDistance
+
+    def updateSettlingTime(self) -> None:
+        if self.__isSettled:
+            return
+
+        currentValue = self.__currentDistance
+        setpoint = self.__currentSetpoint
+        tolerance = abs(setpoint * self.__tolerancePercentage)
+        lowerBound = setpoint - tolerance
+        upperBound = setpoint + tolerance
+
+        if lowerBound <= currentValue <= upperBound:
+            self.__withinToleranceCounter += 1
+            if self.__withinToleranceCounter >= self.__requiredSettledSteps:
+                self.__isSettled = True
+                self.__settlingTime = self.__currentTime - self.__requiredSettledSteps
+        else:
+            self.__withinToleranceCounter = 0
+
+    def getSettlingTime(self) -> float:
+        return self.__settlingTime
+    
+    def getToleranceBounds(self) -> tuple:
+        setpoint = self.__currentSetpoint
+        tolerance = abs(setpoint * self.__tolerancePercentage)
+        return (setpoint - tolerance, setpoint + tolerance)
