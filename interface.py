@@ -81,6 +81,9 @@ class Interface:
     def createSettlingLabel(self) -> None:
         labelProxy = QtWidgets.QGraphicsProxyWidget()
         self.__settlingLabel = QtWidgets.QLabel("Settling time: calculating...")
+        
+        #Make the background black and the text white
+        self.__settlingLabel.setStyleSheet("QLabel { background-color: black; color: white; }")
         labelProxy.setWidget(self.__settlingLabel)
         self.__plotWindow.addItem(labelProxy)
 
@@ -92,9 +95,6 @@ class Interface:
             self.__settlingLabel.setText("Settling time: " + str(settlingTime))
 
     def runUpdateFunction(self, _function) -> None:
-        if _function is None: 
-            return
-        
         self.__timer = QtCore.QTimer()
         self.__timer.timeout.connect(_function)
         self.__timer.start(30)
