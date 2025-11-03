@@ -53,7 +53,7 @@ class Interface:
 
         self.showMeasuredPlot(_distance)
         self.__plotWindow.nextRow()
-        self.showAnalysisPlot(_distance)
+        self.showOvershootPlot(_distance)
 
         self.createSettlingLabel()
 
@@ -67,8 +67,8 @@ class Interface:
         plot.setLabel("left", "Measurements")
         plot.setYRange(0, _distance)
 
-        self.__plotDistance = plot.plot(pen=pg.mkPen(color="blue"))
-        self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
+        self.__plotDistance = plot.plot(pen=pg.mkPen(color="cyan"))
+        self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="magenta", style=Qt.DashLine, dash=[25, 30]))
 
         #Tolerance lines
         self.__toleranceLineLower = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="red", style=Qt.DashLine))
@@ -77,20 +77,20 @@ class Interface:
         plot.addItem(self.__toleranceLineUpper)
 
         #10% and 90% setpoint lines
-        self.__riseLine10 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="orange", style=Qt.DashLine))
-        self.__riseLine90 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="purple", style=Qt.DashLine))
+        self.__riseLine10 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="orange", style=Qt.DotLine))
+        self.__riseLine90 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="orange", style=Qt.DotLine))
         plot.addItem(self.__riseLine10)
         plot.addItem(self.__riseLine90)
 
-    def showAnalysisPlot(self, _distance: float) -> None:
-        plot = self.__plotWindow.addPlot(title="Analysis")
+    def showOvershootPlot(self, _distance: float) -> None:
+        plot = self.__plotWindow.addPlot(title="Overshoot")
         plot.setMouseEnabled(x=False, y=False)
         plot.showGrid(x=True, y=True)
         plot.setLabel("bottom", "Time")
-        plot.setLabel("left", "Error (cm)")
+        plot.setLabel("left", "Overshoot (cm)")
         plot.setYRange(-_distance, _distance)
 
-        self.__plotError = plot.plot(pen=pg.mkPen(color="red"))
+        self.__plotError = plot.plot(pen=pg.mkPen(color="white"))
 
     def createSettlingLabel(self) -> None:
         labelProxy = QtWidgets.QGraphicsProxyWidget()
