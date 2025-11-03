@@ -14,7 +14,7 @@ class Controller:
         self.__currentTime: int = 0
         self.__maxBeamDistance: float = 50
 
-        self.__tolerancePercentage: float = 0.15
+        self.__tolerancePercentage: float = 0.05
         self.__isSettled: bool = False
         self.__settlingTime: float = None
         self.__withinToleranceCounter: int = 0

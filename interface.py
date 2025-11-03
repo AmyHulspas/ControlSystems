@@ -13,6 +13,8 @@ class Interface:
         self.__timer = None
         self.__toleranceLineLower = None
         self.__toleranceLineUpper = None
+        self.__riseLine10 = None
+        self.__riseLine90 = None
         self.__settlingLabel = None
 
     def plotMeasurements(self, _controller) -> None:
@@ -40,6 +42,11 @@ class Interface:
             self.__toleranceLineLower.setValue(lower)
             self.__toleranceLineUpper.setValue(upper)
 
+        #Update 10% and 90% setpoint lines
+        if self.__riseLine10 is not None and self.__riseLine90 is not None:
+            self.__riseLine10.setValue(0.1 * setpoint)
+            self.__riseLine90.setValue(0.9 * setpoint)
+
     def runInterface(self, _function, _distance: float) -> None:
         self.__pidInterfaceApp = QtWidgets.QApplication(sys.argv)
         self.__plotWindow = pg.GraphicsLayoutWidget(show=True, title="PID measurements")
@@ -63,10 +70,17 @@ class Interface:
         self.__plotDistance = plot.plot(pen=pg.mkPen(color="blue"))
         self.__plotSetpoint = plot.plot(pen=pg.mkPen(color="green", style=Qt.DashLine, dash=[25, 30]))
 
+        #Tolerance lines
         self.__toleranceLineLower = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="red", style=Qt.DashLine))
         self.__toleranceLineUpper = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="red", style=Qt.DashLine))
         plot.addItem(self.__toleranceLineLower)
         plot.addItem(self.__toleranceLineUpper)
+
+        #10% and 90% setpoint lines
+        self.__riseLine10 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="orange", style=Qt.DashLine))
+        self.__riseLine90 = pg.InfiniteLine(angle=0, pen=pg.mkPen(color="purple", style=Qt.DashLine))
+        plot.addItem(self.__riseLine10)
+        plot.addItem(self.__riseLine90)
 
     def showAnalysisPlot(self, _distance: float) -> None:
         plot = self.__plotWindow.addPlot(title="Analysis")
